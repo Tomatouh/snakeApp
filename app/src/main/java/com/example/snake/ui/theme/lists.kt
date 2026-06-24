@@ -13,19 +13,40 @@ import com.example.snake.data.network.ReqResUser
 import com.example.snake.data.network.RetrofitClient
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.first
+import kotlin.random.Random
 
 @Composable
 fun LeaderboardScreen(context: Context, navController: NavController) {
     val db = remember { AppDatabase.getDatabase(context) }
     val localScores by db.scoreDao().getAllScoresDescending().collectAsState(initial = emptyList())
-    var networkPlayers by remember { mutableStateOf<List<ReqResUser>>(emptyList()) }
+    // Store network players along with their generated mockup scores
+    var networkPlayersWithScores by remember { mutableStateOf<List<Pair<ReqResUser, Int>>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         try {
             val response = RetrofitClient.api.getGlobalPlayers()
-            networkPlayers = response.data
+            // Map each user to a random score using their ID as a seed for consistency
+            val playersWithScores = response.data.map { user ->
+                val mockScore = Random(user.id.toLong()).nextInt(20, 150)*10
+                user to mockScore
+            }.sortedByDescending { it.second }
+
+            networkPlayersWithScores = playersWithScores
+
+            // Mockup: Seed the local database with some of these players if it's currently empty
+            // This simulates "initial data" for first-time users.
+            val currentLocal = db.scoreDao().getAllScoresDescending().first()
+            if (currentLocal.isEmpty()) {
+                playersWithScores.take(3).forEach { (user, score) ->
+                    db.scoreDao().insertScore(LocalScore(
+                        username = "${user.firstName} ${user.lastName}",
+                        score = score
+                    ))
+                }
+            }
         } catch (e: Exception) {
-            networkPlayers = emptyList()
+            networkPlayersWithScores = emptyList()
         }
     }
 
@@ -47,12 +68,16 @@ fun LeaderboardScreen(context: Context, navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Global Developers (ReqRes Mock API)", style = MaterialTheme.typography.titleMedium)
+        Text("Global Users (Mockup Scores)", style = MaterialTheme.typography.titleMedium)
         LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            items(networkPlayers) { user ->
+            items(networkPlayersWithScores) { (user, score) ->
                 Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                    Row(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
-                        Text("${user.firstName} ${user.lastName} (${user.email})")
+                    Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Column {
+                            Text("${user.firstName} ${user.lastName}", style = MaterialTheme.typography.bodyLarge)
+                            Text(user.email, style = MaterialTheme.typography.bodySmall)
+                        }
+                        Text("$score pts", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
