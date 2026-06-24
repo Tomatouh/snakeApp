@@ -34,8 +34,24 @@ interface ScoreDao {
     @Insert
     suspend fun insertScore(score: LocalScore)
 
+    @Update
+    suspend fun updateScore(score: LocalScore)
+
+    @Query("SELECT * FROM scores WHERE username = :username LIMIT 1")
+    suspend fun getScoreByUsername(username: String): LocalScore?
+
     @Query("SELECT * FROM scores ORDER BY score DESC")
     fun getAllScoresDescending(): Flow<List<LocalScore>>
+
+    @Transaction
+    suspend fun insertOrUpdateHigherScore(score: LocalScore) {
+        val existing = getScoreByUsername(score.username)
+        if (existing == null) {
+            insertScore(score)
+        } else if (score.score > existing.score) {
+            updateScore(score.copy(id = existing.id))
+        }
+    }
 }
 
 @Dao

@@ -73,6 +73,13 @@ fun LoginScreen(context: Context, navController: NavController) {
         TextButton(onClick = { navController.navigate("register") }) {
             Text("Don't have an account? Register")
         }
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedButton(
+            onClick = { navController.navigate("leaderboard") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("View Leaderboard")
+        }
     }
 }
 

@@ -99,7 +99,7 @@ fun GameScreen(context: Context, username: String, navController: NavController)
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
                 onClick = {
                     scope.launch {
-                        db.scoreDao().insertScore(LocalScore(username = username, score = gameState.currentScore))
+                        db.scoreDao().insertOrUpdateHigherScore(LocalScore(username = username, score = gameState.currentScore))
                         navController.navigate("leaderboard")
                     }
                 }

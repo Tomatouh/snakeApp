@@ -20,13 +20,11 @@ import kotlin.random.Random
 fun LeaderboardScreen(context: Context, navController: NavController) {
     val db = remember { AppDatabase.getDatabase(context) }
     val localScores by db.scoreDao().getAllScoresDescending().collectAsState(initial = emptyList())
-    // Store network players along with their generated mockup scores
     var networkPlayersWithScores by remember { mutableStateOf<List<Pair<ReqResUser, Int>>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         try {
             val response = RetrofitClient.api.getGlobalPlayers()
-            // Map each user to a random score using their ID as a seed for consistency
             val playersWithScores = response.data.map { user ->
                 val mockScore = Random(user.id.toLong()).nextInt(20, 150)*10
                 user to mockScore
@@ -34,12 +32,10 @@ fun LeaderboardScreen(context: Context, navController: NavController) {
 
             networkPlayersWithScores = playersWithScores
 
-            // Mockup: Seed the local database with some of these players if it's currently empty
-            // This simulates "initial data" for first-time users.
             val currentLocal = db.scoreDao().getAllScoresDescending().first()
             if (currentLocal.isEmpty()) {
                 playersWithScores.take(3).forEach { (user, score) ->
-                    db.scoreDao().insertScore(LocalScore(
+                    db.scoreDao().insertOrUpdateHigherScore(LocalScore(
                         username = "${user.firstName} ${user.lastName}",
                         score = score
                     ))
@@ -84,7 +80,7 @@ fun LeaderboardScreen(context: Context, navController: NavController) {
         }
 
         Button(onClick = { navController.navigate("login") }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-            Text("Logout / Return to Menu")
+            Text("Return to Menu")
         }
     }
 }
