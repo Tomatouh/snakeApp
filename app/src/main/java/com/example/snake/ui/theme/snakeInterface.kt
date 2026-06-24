@@ -36,12 +36,18 @@ fun GameScreen(context: Context, username: String, navController: NavController)
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
+        Card(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
         ) {
-            Text("Player: $username", style = MaterialTheme.typography.titleMedium)
-            Text("Score: ${gameState.currentScore}", style = MaterialTheme.typography.titleMedium, color = Color(0xFF388E3C))
+            Row(
+                modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Player: $username", style = MaterialTheme.typography.titleMedium)
+                Text("Score: ${gameState.currentScore}", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+            }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -87,6 +93,7 @@ fun GameScreen(context: Context, username: String, navController: NavController)
 
         if (gameState.isGameOver) {
             Text("GAME OVER", style = MaterialTheme.typography.headlineSmall, color = Color.Red)
+            Text("Final Score: ${gameState.currentScore}", style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
