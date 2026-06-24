@@ -35,18 +35,14 @@ android {
 }
 
 dependencies {
-    // Jetpack Compose & Navigation
     implementation("androidx.navigation:navigation-compose:2.8.5")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 
-    // Room Database
     val roomVersion = "2.8.4"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
-    // If using KSP (recommended), replace annotationProcessor with: ksp("androidx.room:room-compiler:$roomVersion")
 
-    // Retrofit for HTTP Requests
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation(platform(libs.androidx.compose.bom))

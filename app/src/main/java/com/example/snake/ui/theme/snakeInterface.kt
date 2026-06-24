@@ -25,7 +25,6 @@ fun GameScreen(context: Context, username: String, navController: NavController)
     val scope = rememberCoroutineScope()
     val db = remember { AppDatabase.getDatabase(context) }
 
-    // Unified game execution tick thread
     LaunchedEffect(gameState.isGameOver) {
         while (!gameState.isGameOver) {
             delay(150)
@@ -47,7 +46,6 @@ fun GameScreen(context: Context, username: String, navController: NavController)
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Snake Canvas Grid Rendering
         Box(
             modifier = Modifier
                 .size(300.dp)
@@ -56,7 +54,6 @@ fun GameScreen(context: Context, username: String, navController: NavController)
         ) {
             val cellSize = 300.dp / GameState.BOARD_SIZE
 
-            // Draw Food
             Box(
                 modifier = Modifier
                     .offset(x = cellSize * gameState.food.x, y = cellSize * gameState.food.y)
@@ -64,7 +61,6 @@ fun GameScreen(context: Context, username: String, navController: NavController)
                     .background(Color.Red)
             )
 
-            // Draw Snake Pieces
             gameState.snake.forEach { segment ->
                 Box(
                     modifier = Modifier
@@ -77,7 +73,6 @@ fun GameScreen(context: Context, username: String, navController: NavController)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // D-Pad Game Controls
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Button(onClick = { if(gameState.direction != Direction.DOWN) gameState = gameState.copy(direction = Direction.UP) }) { Text("▲") }
             Row {
@@ -97,7 +92,6 @@ fun GameScreen(context: Context, username: String, navController: NavController)
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
                 onClick = {
                     scope.launch {
-                        // Crash-safe DB operations
                         db.scoreDao().insertScore(LocalScore(username = username, score = gameState.currentScore))
                         navController.navigate("leaderboard")
                     }

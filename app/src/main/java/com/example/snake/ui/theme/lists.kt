@@ -20,13 +20,11 @@ fun LeaderboardScreen(context: Context, navController: NavController) {
     val localScores by db.scoreDao().getAllScoresDescending().collectAsState(initial = emptyList())
     var networkPlayers by remember { mutableStateOf<List<ReqResUser>>(emptyList()) }
 
-    // Crash Prevention: Enclose HTTP Calls safely inside Try/Catch within side-effects
     LaunchedEffect(Unit) {
         try {
             val response = RetrofitClient.api.getGlobalPlayers()
             networkPlayers = response.data
         } catch (e: Exception) {
-            // Logs safely or serves gracefully without forcing an app termination
             networkPlayers = emptyList()
         }
     }
@@ -35,7 +33,6 @@ fun LeaderboardScreen(context: Context, navController: NavController) {
         Text("Leaderboards", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Tab Row or Side by Side Layout for Local vs Global
         Text("Your Local Top Scores (Room)", style = MaterialTheme.typography.titleMedium)
         LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth()) {
             items(localScores) { record ->

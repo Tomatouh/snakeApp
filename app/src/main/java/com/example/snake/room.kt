@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
-// 1. SharedPreferences Helper
+
 class PreferenceManager(context: Context) {
     private val prefs = context.getSharedPreferences("snake_prefs", Context.MODE_PRIVATE)
 
@@ -13,7 +13,7 @@ class PreferenceManager(context: Context) {
     fun clearAuthToken() = prefs.edit().remove("auth_token").apply()
 }
 
-// 2. Room Database Entities
+
 @Entity(tableName = "scores")
 data class LocalScore(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
@@ -28,7 +28,7 @@ data class User(
     val password: String
 )
 
-// 3. Room DAOs
+
 @Dao
 interface ScoreDao {
     @Insert
@@ -47,7 +47,7 @@ interface UserDao {
     suspend fun getUserByEmail(email: String): User?
 }
 
-// 4. Room Database Instance
+
 @Database(entities = [LocalScore::class, User::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun scoreDao(): ScoreDao
@@ -62,7 +62,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "snake_database"
                 )
-                .fallbackToDestructiveMigration(true) // handle version change easily
+                .fallbackToDestructiveMigration(true)
                 .build()
                 INSTANCE = instance
                 instance

@@ -29,7 +29,6 @@ data class GameState(
             Direction.RIGHT -> Point((head.x + 1) % BOARD_SIZE, head.y)
         }
 
-        // Crash Prevention & Rule Check: Self-collision
         if (snake.contains(newHead)) {
             return this.copy(isGameOver = true)
         }
@@ -37,14 +36,12 @@ data class GameState(
         val newSnake = mutableListOf(newHead).apply { addAll(snake) }
 
         return if (newHead == food) {
-            // Snake eats food
             var newFood = Point(Random.nextInt(BOARD_SIZE), Random.nextInt(BOARD_SIZE))
             while (newSnake.contains(newFood)) {
                 newFood = Point(Random.nextInt(BOARD_SIZE), Random.nextInt(BOARD_SIZE))
             }
             this.copy(snake = newSnake, food = newFood, currentScore = currentScore + 10)
         } else {
-            // Just moving forward, remove tail piece
             newSnake.removeAt(newSnake.lastIndex)
             this.copy(snake = newSnake)
         }

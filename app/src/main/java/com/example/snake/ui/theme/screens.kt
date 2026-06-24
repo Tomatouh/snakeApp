@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(context: Context, navController: NavController) {
-    var email by remember { mutableStateOf("eve.holt@reqres.in") } // Default working ReqRes user
+    var email by remember { mutableStateOf("eve.holt@reqres.in") } 
     var password by remember { mutableStateOf("cityslicka") }
     val scope = rememberCoroutineScope()
     val prefManager = remember { PreferenceManager(context) }
@@ -41,7 +41,6 @@ fun LoginScreen(context: Context, navController: NavController) {
             onClick = {
                 scope.launch {
                     try {
-                        // 1. Try Remote Login
                         val response = try {
                             RetrofitClient.api.login(AuthRequest(email, password))
                         } catch (e: Exception) {
@@ -53,7 +52,6 @@ fun LoginScreen(context: Context, navController: NavController) {
                             val username = email.substringBefore("@")
                             navController.navigate("game/$username") { popUpTo("login") { inclusive = true } }
                         } else {
-                            // 2. Try Local Login
                             val localUser = db.userDao().getUserByEmail(email)
                             if (localUser != null && localUser.password == password) {
                                 prefManager.saveAuthToken("local-token-${localUser.email}")
@@ -105,14 +103,11 @@ fun RegisterScreen(context: Context, navController: NavController) {
                 }
                 scope.launch {
                     try {
-                        // Try remote registration first (optional, but good for ReqRes compatibility)
                         try {
                             RetrofitClient.api.register(AuthRequest(email, password))
                         } catch (_: Exception) {
-                            // Ignore remote error and proceed with local save
                         }
 
-                        // Always save locally to ensure it works with any email
                         db.userDao().insertUser(User(email, password))
                         Toast.makeText(context, "Registration Success (Saved Locally)!", Toast.LENGTH_SHORT).show()
                         navController.navigate("login")
